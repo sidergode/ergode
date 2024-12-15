@@ -808,159 +808,159 @@ st.markdown(
         unsafe_allow_html=True,
     )
 
-# File to store activities
-CSV_FILE = "activities.csv"
+# # File to store activities
+# CSV_FILE = "activities.csv"
 
-    # Function to load activities from CSV
-def load_activities():
-        if os.path.exists(CSV_FILE):
-            return pd.read_csv(CSV_FILE).to_dict('records')  # Convert to list of dicts
-        return []
+#     # Function to load activities from CSV
+# def load_activities():
+#         if os.path.exists(CSV_FILE):
+#             return pd.read_csv(CSV_FILE).to_dict('records')  # Convert to list of dicts
+#         return []
 
-    # Function to save activities to CSV
-def save_activities(activities):
-        df = pd.DataFrame(activities)
-        df.to_csv(CSV_FILE, index=False)
+#     # Function to save activities to CSV
+# def save_activities(activities):
+#         df = pd.DataFrame(activities)
+#         df.to_csv(CSV_FILE, index=False)
 
-    # Initialize session state
-if 'activities' not in st.session_state:
-    st.session_state['activities'] = load_activities()
+#     # Initialize session state
+# if 'activities' not in st.session_state:
+#     st.session_state['activities'] = load_activities()
 
-if 'show_form' not in st.session_state:
-    st.session_state['show_form'] = False
+# if 'show_form' not in st.session_state:
+#     st.session_state['show_form'] = False
 
-if 'edit_index' not in st.session_state:
-    st.session_state['edit_index'] = None
+# if 'edit_index' not in st.session_state:
+#     st.session_state['edit_index'] = None
 
-# UI for activity tracking
-st.title("Activity Tracker")
+# # UI for activity tracking
+# st.title("Activity Tracker")
 
-# Button to toggle "Add Activity" form
-if st.button("Add Activity"):
-    st.session_state['show_form'] = True
-    st.session_state['edit_index'] = None  # Reset editing state
+# # Button to toggle "Add Activity" form
+# if st.button("Add Activity"):
+#     st.session_state['show_form'] = True
+#     st.session_state['edit_index'] = None  # Reset editing state
 
-    # Display activities
-if st.session_state['activities']:
-    st.write("### List of Activities")
-    for i, activity in enumerate(st.session_state['activities']):
-            with st.expander(f"{activity['Activity Title']} ({activity['Status']})"):
-                st.write(f"**Activity Description:** {activity['Activity Description']}")
-                st.write(f"**Metric Category:** {activity['Metric Category']}")
-                st.write(f"**Status:** {activity['Status']}")
-                st.write(f"**Planned From:** {activity['Planned From']}")
-                st.write(f"**Activity Stopped On:** {activity['Activity Stopped On']}")
-                st.write(f"**Implemented By:** {activity['Implemented By']}")
+#     # Display activities
+# if st.session_state['activities']:
+#     st.write("### List of Activities")
+#     for i, activity in enumerate(st.session_state['activities']):
+#             with st.expander(f"{activity['Activity Title']} ({activity['Status']})"):
+#                 st.write(f"**Activity Description:** {activity['Activity Description']}")
+#                 st.write(f"**Metric Category:** {activity['Metric Category']}")
+#                 st.write(f"**Status:** {activity['Status']}")
+#                 st.write(f"**Planned From:** {activity['Planned From']}")
+#                 st.write(f"**Activity Stopped On:** {activity['Activity Stopped On']}")
+#                 st.write(f"**Implemented By:** {activity['Implemented By']}")
 
-                # Edit button for each activity
-                if st.button(f"Edit", key=f"edit_{i}"):
-                    st.session_state['show_form'] = True
-                    st.session_state['edit_index'] = i
-    else:
-        st.info("No activities added yet.")
+#                 # Edit button for each activity
+#                 if st.button(f"Edit", key=f"edit_{i}"):
+#                     st.session_state['show_form'] = True
+#                     st.session_state['edit_index'] = i
+#     else:
+#         st.info("No activities added yet.")
 
-    # Show form only if "Add Activity" or "Edit" is clicked
-if st.session_state['show_form']:
-    with st.form("activity_form", clear_on_submit=True):
-            # Determine whether the form is for adding or editing
-            if st.session_state['edit_index'] is not None:
-                st.subheader("Edit Activity")
-                activity = st.session_state['activities'][st.session_state['edit_index']]
-                activity_title = st.text_input("Activity Title (short text)", activity["Activity Title"])
-                activity_description = st.text_area("Activity Description (long text)", activity["Activity Description"])
-                metric_category = st.selectbox(
-                    "Metric Category",
-                    [
-                        "Gross Margin",
-                        "BuyBox Win Rate",
-                        "Operational Performance - Handling Time",
-                        "Operational Performance - Pre-fulfillment cancellations",
-                        "Operational Performance - Credit Terms",
-                        "Operational Performance - Pricing Update Errors",
-                        "Operational Performance - Accepts Returns",
-                        "Operational Performance - Vendor-account shipping",
-                        "Operational Performance - Shipping cost variance",
-                        "Operational Performance - Exclusivity",
-                        "Contribution Margin Bridge Gap",
-                        "Sales Return Rate",
-                        "Non-Amazon.com Sales",
-                    ],
-                    index=[
-                        "Gross Margin",
-                        "BuyBox Win Rate",
-                        "Operational Performance - Handling Time",
-                        "Operational Performance - Pre-fulfillment cancellations",
-                        "Operational Performance - Credit Terms",
-                        "Operational Performance - Pricing Update Errors",
-                        "Operational Performance - Accepts Returns",
-                        "Operational Performance - Vendor-account shipping",
-                        "Operational Performance - Shipping cost variance",
-                        "Operational Performance - Exclusivity",
-                        "Contribution Margin Bridge Gap",
-                        "Sales Return Rate",
-                        "Non-Amazon.com Sales",
-                    ].index(activity["Metric Category"]),
-                )
-                status = st.selectbox("Status", ["Active", "On Hold", "Completed"], index=["Active", "On Hold", "Completed"].index(activity["Status"]))
-                planned_from = st.date_input("Planned from (date)", pd.to_datetime(activity["Planned From"]))
-                activity_stopped_on = st.date_input("Activity Stopped on (date)", pd.to_datetime(activity["Activity Stopped On"]))
-                implemented_by = st.text_input("Implemented by", activity["Implemented By"])
-            else:
-                st.subheader("Add New Activity")
-                # Empty fields for new activity
-                activity_title = st.text_input("Activity Title (short text)")
-                activity_description = st.text_area("Activity Description (long text)")
-                metric_category = st.selectbox(
-                    "Metric Category",
-                    [
-                        "Gross Margin",
-                        "BuyBox Win Rate",
-                        "Operational Performance - Handling Time",
-                        "Operational Performance - Pre-fulfillment cancellations",
-                        "Operational Performance - Credit Terms",
-                        "Operational Performance - Pricing Update Errors",
-                        "Operational Performance - Accepts Returns",
-                        "Operational Performance - Vendor-account shipping",
-                        "Operational Performance - Shipping cost variance",
-                        "Operational Performance – Exclusivity",
-                        "Contribution Margin Bridge Gap",
-                        "Sales Return Rate",
-                        "Non-Amazon.com Sales",
-                    ],
-                )
-                status = st.selectbox("Status", ["Active", "On Hold", "Completed"])
-                planned_from = st.date_input("Planned from (date)")
-                activity_stopped_on = st.date_input("Activity Stopped on (date)")
-                implemented_by = st.text_input("Implemented by")
+#     # Show form only if "Add Activity" or "Edit" is clicked
+# if st.session_state['show_form']:
+#     with st.form("activity_form", clear_on_submit=True):
+#             # Determine whether the form is for adding or editing
+#             if st.session_state['edit_index'] is not None:
+#                 st.subheader("Edit Activity")
+#                 activity = st.session_state['activities'][st.session_state['edit_index']]
+#                 activity_title = st.text_input("Activity Title (short text)", activity["Activity Title"])
+#                 activity_description = st.text_area("Activity Description (long text)", activity["Activity Description"])
+#                 metric_category = st.selectbox(
+#                     "Metric Category",
+#                     [
+#                         "Gross Margin",
+#                         "BuyBox Win Rate",
+#                         "Operational Performance - Handling Time",
+#                         "Operational Performance - Pre-fulfillment cancellations",
+#                         "Operational Performance - Credit Terms",
+#                         "Operational Performance - Pricing Update Errors",
+#                         "Operational Performance - Accepts Returns",
+#                         "Operational Performance - Vendor-account shipping",
+#                         "Operational Performance - Shipping cost variance",
+#                         "Operational Performance - Exclusivity",
+#                         "Contribution Margin Bridge Gap",
+#                         "Sales Return Rate",
+#                         "Non-Amazon.com Sales",
+#                     ],
+#                     index=[
+#                         "Gross Margin",
+#                         "BuyBox Win Rate",
+#                         "Operational Performance - Handling Time",
+#                         "Operational Performance - Pre-fulfillment cancellations",
+#                         "Operational Performance - Credit Terms",
+#                         "Operational Performance - Pricing Update Errors",
+#                         "Operational Performance - Accepts Returns",
+#                         "Operational Performance - Vendor-account shipping",
+#                         "Operational Performance - Shipping cost variance",
+#                         "Operational Performance - Exclusivity",
+#                         "Contribution Margin Bridge Gap",
+#                         "Sales Return Rate",
+#                         "Non-Amazon.com Sales",
+#                     ].index(activity["Metric Category"]),
+#                 )
+#                 status = st.selectbox("Status", ["Active", "On Hold", "Completed"], index=["Active", "On Hold", "Completed"].index(activity["Status"]))
+#                 planned_from = st.date_input("Planned from (date)", pd.to_datetime(activity["Planned From"]))
+#                 activity_stopped_on = st.date_input("Activity Stopped on (date)", pd.to_datetime(activity["Activity Stopped On"]))
+#                 implemented_by = st.text_input("Implemented by", activity["Implemented By"])
+#             else:
+#                 st.subheader("Add New Activity")
+#                 # Empty fields for new activity
+#                 activity_title = st.text_input("Activity Title (short text)")
+#                 activity_description = st.text_area("Activity Description (long text)")
+#                 metric_category = st.selectbox(
+#                     "Metric Category",
+#                     [
+#                         "Gross Margin",
+#                         "BuyBox Win Rate",
+#                         "Operational Performance - Handling Time",
+#                         "Operational Performance - Pre-fulfillment cancellations",
+#                         "Operational Performance - Credit Terms",
+#                         "Operational Performance - Pricing Update Errors",
+#                         "Operational Performance - Accepts Returns",
+#                         "Operational Performance - Vendor-account shipping",
+#                         "Operational Performance - Shipping cost variance",
+#                         "Operational Performance – Exclusivity",
+#                         "Contribution Margin Bridge Gap",
+#                         "Sales Return Rate",
+#                         "Non-Amazon.com Sales",
+#                     ],
+#                 )
+#                 status = st.selectbox("Status", ["Active", "On Hold", "Completed"])
+#                 planned_from = st.date_input("Planned from (date)")
+#                 activity_stopped_on = st.date_input("Activity Stopped on (date)")
+#                 implemented_by = st.text_input("Implemented by")
 
-            # Submit button
-            submitted = st.form_submit_button("Save Activity")
+#             # Submit button
+#             submitted = st.form_submit_button("Save Activity")
 
-            # Handle form submission
-            if submitted:
-                if activity_title and implemented_by:
-                    new_activity = {
-                        "Activity Title": activity_title,
-                        "Activity Description": activity_description,
-                        "Metric Category": metric_category,
-                        "Status": status,
-                        "Planned From": planned_from,
-                        "Activity Stopped On": activity_stopped_on,
-                        "Implemented By": implemented_by,
-                    }
+#             # Handle form submission
+#             if submitted:
+#                 if activity_title and implemented_by:
+#                     new_activity = {
+#                         "Activity Title": activity_title,
+#                         "Activity Description": activity_description,
+#                         "Metric Category": metric_category,
+#                         "Status": status,
+#                         "Planned From": planned_from,
+#                         "Activity Stopped On": activity_stopped_on,
+#                         "Implemented By": implemented_by,
+#                     }
 
-                    if st.session_state['edit_index'] is not None:
-                        # Update existing activity
-                        st.session_state['activities'][st.session_state['edit_index']] = new_activity
-                        st.success("Activity updated successfully!")
-                    else:
-                        # Add new activity
-                        st.session_state['activities'].append(new_activity)
-                        st.success("Activity added successfully!")
+#                     if st.session_state['edit_index'] is not None:
+#                         # Update existing activity
+#                         st.session_state['activities'][st.session_state['edit_index']] = new_activity
+#                         st.success("Activity updated successfully!")
+#                     else:
+#                         # Add new activity
+#                         st.session_state['activities'].append(new_activity)
+#                         st.success("Activity added successfully!")
 
-                    # Save to CSV and hide the form
-                    save_activities(st.session_state['activities'])
-                    st.session_state['show_form'] = False
-                    st.session_state['edit_index'] = None
-                else:
-                    st.error("Please fill in the required fields.")
+#                     # Save to CSV and hide the form
+#                     save_activities(st.session_state['activities'])
+#                     st.session_state['show_form'] = False
+#                     st.session_state['edit_index'] = None
+#                 else:
+#                     st.error("Please fill in the required fields.")
